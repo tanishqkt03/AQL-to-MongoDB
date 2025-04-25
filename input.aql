@@ -1,0 +1,1 @@
+SELECT c/data[at0001]/items[at0002]/value/value AS Systolic FROM EHR e CONTAINS COMPOSITION c WHERE c/name/value = 'Blood Pressure' AND e/subjectOfCare/extension = '0000000147' ORDER BY c/context/start_time TIMEWINDOW '2024-01-01', '2024-12-31';

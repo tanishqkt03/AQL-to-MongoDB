@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AQL to MongoDB Translator</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h2 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .container {
+        width: 80%;
+        max-width: 1000px;
+        background: white;
+        padding: 20px 30px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+
+      textarea {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        resize: vertical;
+        margin-bottom: 20px;
+      }
+
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      pre {
+        background: #eee;
+        padding: 15px;
+        border-radius: 5px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .sample-queries {
+        margin-top: 20px;
+      }
+
+      .sample-queries h3 {
+        margin-bottom: 5px;
+      }
+
+      .sample-queries ul {
+        padding-left: 20px;
+      }
+
+      .sample-queries li {
+        margin-bottom: 10px;
+        cursor: pointer;
+        color: #007bff;
+      }
+
+      .sample-queries li:hover {
+        text-decoration: underline;
+      }
+      .authors {
+        margin-top: 30px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+      }
+
+      .authors h3 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .authors ul {
+        padding-left: 20px;
+      }
+
+      .authors li {
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>AQL to MongoDB Translator</h2>
+    <div class="container">
+      <textarea
+        id="aqlInput"
+        rows="8"
+        placeholder="Enter AQL query here..."
+      ></textarea>
+      <button id="translateButton">Translate</button>
+      <pre id="output"></pre>
+
+      <div class="sample-queries">
+        <h3>Sample AQL Queries:</h3>
+        <ul>
+          <li
+            onclick="setQuery(`SELECT e/subjectOfCare/extension AS Patient FROM EHR e CONTAINS COMPOSITION c WHERE e/subjectOfCare/extension = '0000000147';`)"
+          >
+            SELECT with WHERE
+          </li>
+          <li
+            onclick="setQuery(`SELECT c/data[at0001]/items[at0002]/value/value AS Systolic FROM EHR e CONTAINS COMPOSITION c WHERE c/name/value = 'Blood Pressure' AND e/subjectOfCare/extension = '0000000147' ORDER BY c/context/start_time TIMEWINDOW '2024-01-01', '2024-12-31';`)"
+          >
+            Blood Pressure with ORDER BY & TIMEWINDOW
+          </li>
+          <li
+            onclick="setQuery(`SELECT c/content/items/parts[at0000]/parts[at0001]/value/originalText/value AS Problem, e/subjectOfCare/extension AS Patient FROM EHR e CONTAINS COMPOSITION c WHERE e/subjectOfCare/extension = '0000000147' AND c/content/items/name/value = 'ProblemList';`)"
+          >
+            Problem List Query
+          </li>
+          <li
+            onclick="setQuery(`SELECT c/content/items/name/value AS Name FROM EHR e CONTAINS COMPOSITION c WHERE c/context/start_time = '2024-04-01';`)"
+          >
+            Query with DATE equality
+          </li>
+        </ul>
+      </div>
+      <div class="authors">
+        <h3>Program Authors:</h3>
+        <ul>
+            <li>Tanishq Kr. Toliya - 221210107</li>
+            <li>Tanmay Mittal - 221210108</li>
+            <li>Tarang Srivastava - 221210109</li>
+        </ul>
+    </div>
+    
+    </div>
+
+    <script>
+      function setQuery(query) {
+        document.getElementById("aqlInput").value = query;
+      }
+
+      document
+        .getElementById("translateButton")
+        .addEventListener("click", function () {
+          const aql = document.getElementById("aqlInput").value;
+
+          fetch("http://127.0.0.1:5000/translate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ aql: aql }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("output").textContent =
+                data.mongo || data.error || "No response.";
+            })
+            .catch((error) => {
+              document.getElementById("output").textContent =
+                "Fetch error: " + error;
+            });
+        });
+    </script>
+  </body>
+</html>

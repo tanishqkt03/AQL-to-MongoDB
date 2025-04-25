@@ -1,0 +1,1 @@
+SELECT c/content/items/name/value AS Name FROM EHR e CONTAINS COMPOSITION c WHERE c/context/start_time = '2024-04-01';
