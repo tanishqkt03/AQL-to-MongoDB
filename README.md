@@ -91,4 +91,4 @@ b.ehr_data.find(
 ).sort({ "composition.context.start_time": -1 })
 ```
 ## Contributions
-If you'd like to contribute to this project, feel free to fork the repository, make your changes, and create a pull request. We welcome improvements to the code and UI.
+If you'd like to contribute to this project, feel free to fork the repository, make your changes, and create a pull request.
